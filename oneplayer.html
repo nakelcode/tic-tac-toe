@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="olamilekan">
+    <title>Player VS Computer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Sixtyfour+Convergence&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+           font-family: Arial, sans-serif;
+           text-align: center;
+
+        }
+        #restart-btn{
+            background-color: #000000;
+            color: #ffffff;
+            padding: 10px;
+            font-size: 20px;
+            border-radius: 5px;
+            font-family: "Fredoka", sans-serif;
+        }
+        #restart-btn:active{
+            padding: 15px;
+            opacity: 0.5;
+
+        }
+        .bar {
+            width: 20px;
+            height: 4px;
+            background-color: #000000;
+            margin: 2px 0;
+        }
+        #menu{
+            position: absolute;
+            top:0;
+            right: 0;
+            margin-top: 5px;
+            margin-right: 5px;
+            text-decoration: none;
+            font-size: 15px;
+            color: #000000;
+            font-family: sans-serif;
+            font-weight: 600;
+        }
+        .main-content{
+            margin-top: 60px;
+        }
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-gap: 5px;
+    margin: 20px auto;
+    justify-content: center;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    background-color: #000000;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.cell:hover {
+    background-color: #e0e0e0;
+    color: #000000;
+}
+
+button {
+    margin-top: 20px;
+}
+
+#status {
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <div> <a href="index.html" id="menu">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                
+                MENU </a>
+        </nav>
+       </header>
+
+       <div class="main-content">
+        <h1>Tic Tac Toe</h1>
+        <h3>Player Vs Computer</h3>
+        <div id="game-board"></div>
+        <button id="restart-btn">Restart</button>
+        <div id="status"></div>
+
+       </div>
+
+    
+
+    <script>
+        const gameBoard = document.getElementById('game-board');
+const statusDisplay = document.getElementById('status');
+const restartButton = document.getElementById('restart-btn');
+
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X';
+let gameActive = true;
+
+const winningConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
+
+function createBoard() {
+    board.forEach((cell, index) => {
+        const cellElement = document.createElement('div');
+        cellElement.classList.add('cell');
+        cellElement.setAttribute('data-index', index);
+        cellElement.addEventListener('click', handleCellClick);
+        gameBoard.appendChild(cellElement);
+    });
+}
+
+function handleCellClick(event) {
+    const clickedCell = event.target;
+    const clickedCellIndex = clickedCell.getAttribute('data-index');
+
+    if (board[clickedCellIndex] !== '' || !gameActive) {
+        return;
+    }
+
+    updateCell(clickedCell, clickedCellIndex);
+    checkResult();
+    
+    if (gameActive) {
+        computerPlay();
+    }
+}
+
+function updateCell(clickedCell, index) {
+    board[index] = currentPlayer;
+    clickedCell.innerText = currentPlayer;
+}
+
+function checkResult() {
+    let roundWon = false;
+
+    for (let i = 0; i < winningConditions.length; i++) {
+        const [a, b, c] = winningConditions[i];
+        if (board[a] === '' || board[b] === '' || board[c] === '') {
+            continue;
+        }
+        if (board[a] === board[b] && board[a] === board[c]) {
+            roundWon = true;
+            break;
+        }
+    }
+
+    if (roundWon) {
+        statusDisplay.innerText = `${currentPlayer} wins!`;
+        gameActive = false;
+        return;
+    }
+
+    if (!board.includes('')) {
+        statusDisplay.innerText = "It's a draw!";
+        gameActive = false;
+    }
+}
+
+function computerPlay() {
+    currentPlayer = 'O';
+    let availableCells = board.map((cell, index) => cell === '' ? index : null).filter(item => item !== null);
+    
+    if (availableCells.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableCells.length);
+        const cellToPlay = availableCells[randomIndex];
+        updateCell(document.querySelector(`[data-index='${cellToPlay}']`), cellToPlay);
+        checkResult();
+    }
+    currentPlayer = 'X';
+}
+
+restartButton.addEventListener('click', restartGame);
+
+function restartGame() {
+    board = ['', '', '', '', '', '', '', '', ''];
+    gameActive = true;
+    currentPlayer = 'X';
+    statusDisplay.innerText = '';
+    gameBoard.innerHTML = '';
+    createBoard();
+}
+
+createBoard();
+
+
+
+    </script>
+</body>
+</html>
